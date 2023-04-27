@@ -1,5 +1,5 @@
-const CRYPTO_PASS = "CGTOPWallETCRYPTOPASSWORDCGTOPWallETCRYPTOPASSWORDCODEGE";
-const CRYPTO_SALT = "TopWallETSALtCRYpToBECGTOPWallETCRYPTOPASSWORDCODEGE";
+const CRYPTO_PASS = process.env.CRYPTO_PASS;
+const CRYPTO_SALT = process.env.CRYPTO_SALT;
 const CryptoJS = require("crypto-js");
 var password = CRYPTO_PASS;
 var salt = CRYPTO_SALT;
@@ -16,7 +16,27 @@ module.exports = {
       return "error";
     }
   },
-  decrypt: (str) => {
+  encryption: (str) => {
+    try {
+        const iv = CryptoJS.lib.WordArray.random(16);
+        const encrypted = CryptoJS.AES.encrypt(str, key, { iv: iv }).toString();
+        return encrypted.replace(/[^a-zA-Z0-9]/g, '');
+    } catch (error) {
+        return "error";
+    }
+},
+decryption: (encryptedStr) => {
+  try {
+    const iv = CryptoJS.enc.Hex.parse(encryptedStr.substr(0, 32));
+    const encrypted = encryptedStr.slice(16);
+    const ciphertext = CryptoJS.enc.Base64.parse(encrypted);
+    const decrypted = CryptoJS.AES.decrypt({ ciphertext }, key, { iv });
+    return decrypted.toString(CryptoJS.enc.Utf8);
+  } catch (error) {
+    return "error";
+  }
+},
+decrypt: (str) => {
     try {
       const dattt = CryptoJS.AES.decrypt(str, key.toString());
       return dattt.toString(CryptoJS.enc.Utf8);
@@ -36,7 +56,7 @@ module.exports = {
   },
   decryptobj: (str) => {
     try {
-      const objt = CryptoJS.AES.decrypt(str, key.toString());
+      const objt = CryptoJS.AES.decrypt(str,key.toString());
      
       return JSON.parse(objt.toString(CryptoJS.enc.Utf8));
     } catch (error) {

@@ -1,9 +1,9 @@
-const { User } = require("../models/user");
-const { post } = require("../models/post");
-const { Categories } = require("../models/categories");
-const {Image} = require("../models/image");
-const {Addpost}=require('../models/addpost');
-
+const { Admin} = require("../models/Admin");
+const {User} = require("../models/users");
+const { Addpost } = require("../models/addpost"); 
+const { Categories } = require("../models/categories"); 
+const { Image } = require("../models/image"); 
+const { userimages } = require("../models/images"); 
 module.exports = {
   insertDocument: async function (collectionName, document) {
     try {
@@ -72,31 +72,5 @@ module.exports = {
     }
   },
  
-   lazyloading : async function(collectionName,skip,limit) {
-    try {
-      const collection = eval(collectionName);
-      const documents = await collection.find().skip(skip).limit(limit);
-     return documents;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  },
-  search:async function(collectionName, query) {
-    try {
-      const collection = eval(collectionName);
-      const documents = await collection.find(query);
-      return documents;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  }
-  
-  
-  
-  
-  
-  
   
 };

@@ -1,0 +1,6 @@
+.env
+rough.js
+rough2.js
+node_modules/
+logs/
+index.js

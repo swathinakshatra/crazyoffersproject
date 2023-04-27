@@ -66,16 +66,5 @@ function validatepost(post) {
 }
 exports.Addpost = Addpost; 
 exports.validatepost = validatepost;
-// function validateSkip(skips) {
-//   const schema = Joi.object({
-//     skip:Joi.number().min(0).required().messages({
-//     'number.min': 'Skip must be greater than or equal to 0',
-//     'any.required': 'Skip is required'
-//   })
-// });
 
-// return schema.validate(skips);
-// }
-// exports.validateSkip = validateSkip;
-  
 

@@ -40,28 +40,5 @@ router.post('/image', async (req, res) => {
   }
 });
 
-
-
-
-
-
-// router.post('/uploadss ', async (req, res) => {
-//   const { base64String } = req.body; // assuming base64String is sent in the request body
-
-//   try {
-//     const imagePath = await base64toFile(base64String, { filePath: './uploads', fileName: 'image', types: ['png'], fileMaxSize: 3145728 });
-//     res.send({ imagePath });
-//   } catch (error) {
-//     res.status(500).send({ error: error.message });
-//   }
-// });
-
-
-
-
-
-
-
-
-  module.exports = router;
+module.exports = router;
 

@@ -1,10 +1,7 @@
-const { JsonWebTokenError } = require('jsonwebtoken');
 const redis = require('redis');
-
-
 const client = redis.createClient({
-        host: "127.0.0.1",
-        port: '6379'
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT
 });
 client.connect()
 client.on('connect', err => {
@@ -18,20 +15,6 @@ client.on('end', () => {
     console.log('Client disconnected to redis...');
 });
 
-const redisupdate = async (collectionName, document, hash, data) => {
-  try {
-     var tr = eval(collectionName);
-    const collection = await tr.create(document);
-    console.log("Inserted a document");
-    const redisResult = await client.SET(hash, data);
-    console.log(redisResult);
-   return { collection, redisResult };
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-};
-module.exports=redisupdate;
 
 module.exports = {
    redisSET: async(hash,data)=> {
@@ -81,7 +64,7 @@ redisGET: async(hash)=> {
     var reply = JSON.parse(result);
     return reply;
   },
- deleteData:async (hash) => {
+ redisdelete:async (hash) => {
       try {
           const result = await client.del(hash);
           return result;
@@ -90,7 +73,7 @@ redisGET: async(hash)=> {
           throw error;
       }
   },
-  deleteData: async (hash, field) => {
+  redishdelete: async (hash, key) => {
     try {
       const result = await client.HDEL(hash, key);
       return result;
@@ -99,7 +82,7 @@ redisGET: async(hash)=> {
       throw error;
     }
   },
-  redisupdate: async (hash,data) => {
+  redisupdate: async (hash,key,data) => {
     try {
       const result = await client.hSet(hash,key,data);
       if (!result) {

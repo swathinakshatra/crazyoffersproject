@@ -1,6 +1,6 @@
 const tiger = require("tiger-balm");
-const tigerpassword = "SWATHIPASSWORDSWATHI";
-const tigersalt = "SALTPASSWORDTIGERBALM";
+const tigerpassword = process.env.TIGER_PASSWORD;
+const tigersalt = process.env.TIGER_SALT;
 var password = tigerpassword;
 var salt = tigersalt;
 module.exports = {

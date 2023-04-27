@@ -18,7 +18,7 @@ router.post("/categories",auth,admin,async (req, res) => {
   console.log("categories",categories);
   return res.status(200).send("categories saved successfully");
 });
-router.post("/getcategories", async (req, res) => {
+router.post("/getcategories", auth,admin,async (req, res) => {
   const categories = await Queries.find("Categories");
   if (!categories) return res.status(400).send("categories not found");
   return res.status(200).send(crypto.encryptobj({ success: categories }));

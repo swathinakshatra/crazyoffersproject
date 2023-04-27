@@ -20,7 +20,7 @@ router.post("/imagecategories",auth,admin,async (req, res) => {
   console.log("redisresult",redisresult);
   return res.status(200).send("categories saved successfully");
 });
-router.post("/getimages", async (req, res) => {
+router.post("/getimages",auth,admin,async (req, res) => {
   const dataExists = await redisquery.redisexists("imagecategory");
   console.log(dataExists);
   if (!dataExists) {
@@ -30,7 +30,7 @@ router.post("/getimages", async (req, res) => {
   console.log(dataGet, "dataGet");
   return res.status(200).send(crypto.encrypt({ dataGet }));
 });
-router.post("/getimagecategories", async (req, res) => {
+router.post("/getimagecategories",auth,admin,async (req, res) => {
   const categories = await Queries.find("Image");
   if (!categories) return res.status(400).send("categories not found");
   return res.status(200).send(crypto.encryptobj({ success: categories }));

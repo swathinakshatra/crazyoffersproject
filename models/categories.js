@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 const Joi = require('joi');
 const catSchema = new mongoose.Schema({
-  categories: 
+  categories: [
     {
       type: String,
       required: true,
     },
-  
+  ],
   
  
 });

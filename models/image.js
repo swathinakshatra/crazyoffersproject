@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 const Joi = require('joi');
 
 const categorySchema = new mongoose.Schema({
-    categories: {
+    categories: [{
       type: String,
       required: true
-    },
+    }],
     images: 
       {
         type: String,
