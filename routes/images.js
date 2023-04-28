@@ -26,13 +26,9 @@ router.post("/getimages",auth,admin,async (req, res) => {
   if (!dataExists) {
     return res.status(400).send("No posts");
   }
-  const dataGet = await redisquery.redisget("latest"); 
+  const dataGet = await redisquery.redisget("imagecategory"); 
   console.log(dataGet, "dataGet");
   return res.status(200).send(crypto.encrypt({ dataGet }));
 });
-router.post("/getimagecategories",auth,admin,async (req, res) => {
-  const categories = await Queries.find("Image");
-  if (!categories) return res.status(400).send("categories not found");
-  return res.status(200).send(crypto.encryptobj({ success: categories }));
-});
+
  module.exports = router;

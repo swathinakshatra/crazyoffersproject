@@ -14,13 +14,19 @@ router.post("/categories",auth,admin,async (req, res) => {
   const result = await Queries.insertDocument("Categories", category);
   if (!result) return res.status(500).send("error saving categories.");
   const allcategories=await Queries.find("Categories");
-  const categories=await redisquery.redisSET("latest",JSON.stringify(allcategories));
+  const categories=await redisquery.redisSET("categories",JSON.stringify(allcategories));
   console.log("categories",categories);
   return res.status(200).send("categories saved successfully");
 });
-router.post("/getcategories", auth,admin,async (req, res) => {
-  const categories = await Queries.find("Categories");
-  if (!categories) return res.status(400).send("categories not found");
-  return res.status(200).send(crypto.encryptobj({ success: categories }));
+router.post("/allcategories", auth,admin,async (req, res) => {
+  const dataExists = await redisquery.redisexists("categories");
+  console.log(dataExists);
+  if (!dataExists) {
+    return res.status(400).send("No categories");
+  }
+  const dataGet = await redisquery.redisget("categories"); 
+  console.log(dataGet, "dataGet");
+  return res.status(200).send(crypto.encrypt({ dataGet }));
 });
+
 module.exports = router;

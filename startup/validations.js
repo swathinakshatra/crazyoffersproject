@@ -58,10 +58,37 @@ const validate =(data)=>{
   })
   return schema.validate(data);
 }
+const validatepost=(post)=>{
+  const schema = Joi.object({
+    title: Joi.string().min(10).max(100).required().messages({
+      'string.empty': 'Title is required',
+      'any.required': 'Title is required'
+    }),
+    description:Joi.string().min(100).max(500).required().messages({
+      'string.empty': 'Description is required',
+      'any.required': 'Description is required'
+    }),
+    categories:Joi.string().min(1).required().messages({
+      'array.empty': 'At least one category is required',
+      'any.required': 'At least one category is required'
+    }),
+    price: Joi.number().min(10).max(10000000).required().messages({
+      'number.min': 'Price must be greater than or equal to 0',
+      'any.required': 'Price is required'
+    }),
+    images: Joi.string().required().messages({
+      'array.empty': 'At least one image is required',
+      'any.required': 'At least one image is required'
+    })
+  });
+
+  return schema.validate(post);
+}
  
 module.exports = {
   registrationValidation,
   loginValidation,
   Categoriesvalidation,
-  validate
+  validate,
+  validatepost
 };

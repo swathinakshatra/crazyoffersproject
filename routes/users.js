@@ -9,18 +9,19 @@ const redisquery = require("../startup/redis");
 const crypto = require("../startup/crypto");
 const { generateUserId } = require("../middleware/userid");
 router.post('/registration', async (req, res) => {
-const { error } = registrationValidation(req.body);
+  const decrypted = crypto.decryptobj(req.body.enc);
+const { error } = registrationValidation(decrypted);
   if (error) return res.status(400).send({ error: error.details[0].message });
-  const emailExists = await Queries.findOneDocument({ email: req.body.email }, 'User');
+  const emailExists = await Queries.findOneDocument({ email: decrypted.email }, 'User');
   if (emailExists) return res.status(400).send({ error: 'Email already registered' });
-  const phoneExists = await Queries.findOneDocument({ phone: req.body.phone }, 'User');
+  const phoneExists = await Queries.findOneDocument({ phone: decrypted.phone }, 'User');
   if (phoneExists) return res.status(400).send({ error: 'Phone number already registered' });
   const newuser = {
     userid: generateUserId(),
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password,
-    phone: req.body.phone,
+    name: decrypted.name,
+    email: decrypted.email,
+    password: decrypted.password,
+    phone: decrypted.phone,
    
   };
   const user = await Queries.insertDocument("User", newuser);
@@ -35,32 +36,22 @@ const { error } = registrationValidation(req.body);
 });
 
 router.post("/login", async (req, res) => {
-  const decryptedDocument = crypto.decryptobj(req.body.enc);
-  const { error } = loginValidation(decryptedDocument);
+  const decrypted = crypto.decryptobj(req.body.enc);
+  const { error } = loginValidation(decrypted);
   if (error) return res.status(400).send(error.details[0].message);
   if (error) {
     return res.status(400).send(error.details[0].message);
   } else {
-    let user = await Queries.findOneDocument({ phone: decryptedDocument}, "User");
+    let user = await Queries.findOneDocument({ phone: decrypted.phone}, "User");
     if (!user) {
       return res.status(400).send("user phone number doesnot Registered.");
     } else {
-      const validPassword = await bcrypt.compare(
-        decryptedDocument,
-        user.password
-      );
+      const validPassword = await bcrypt.compare(decrypted.password,user.password);
       if (!validPassword) {
         return res.status(400).send("Invalid Password ,please enter valid password");
       } else {
-        const token = jwt.sign(
-          {
-            userid: user.userid,
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
-          },
-          process.env.jwtPrivateKey,
-          { expiresIn: "2h" }
+const token = jwt.sign({ userid: user.userid,name: user.name,email: user.email,phone: user.phone},
+          process.env.jwtPrivateKey,{ expiresIn: "2h" }
         );
         return res.status(200).send(crypto.encryptobj(token));
       }
