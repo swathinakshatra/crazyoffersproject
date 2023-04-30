@@ -3,13 +3,12 @@ const router = express.Router();
 const { Addpost, validatepost } = require("../models/addpost");  
 const crypto = require("../startup/crypto");
 const auth = require("../middleware/auth");
-const admin = require("../middleware/admin");
+const isAdmin = require("../middleware/admin");
 const Queries = require("../startup/mongofunctions");
 const redisquery = require("../startup/redis");
-
-router.post("/addpost",auth,admin,async (req, res) => {
+router.post("/addpost",auth,isAdmin,async (req, res) => {
 const decrypted = crypto.decryptobj(req.body.enc);
-const { error } = validatepost(req.body);
+const { error } = validatepost(decrypted);
   if (error) return res.status(400).send(error.details[0].message);
   const newpost = {
     title: decrypted.title,
@@ -18,6 +17,7 @@ const { error } = validatepost(req.body);
     price: decrypted.price,
     images: decrypted.images,
   };
+ const title=req.body.title
   const data = await Queries.insertDocument("Addpost", newpost);
   if (!data) return res.status(400).send("error saving posts.");
   const posts = await Queries.findLatestPosts("Addpost", { createdAt: -1 }, 20);
@@ -26,28 +26,33 @@ const { error } = validatepost(req.body);
   console.log("redisresult",redisresult);
   const redisResult = await redisquery.redisSET("allposts",JSON.stringify(allposts));
   console.log("redisresult",redisResult);
+  const result=await redisquery.redishset("onepost",title,data);
+  console.log(result,"result");
   return res.status(200).send("posts added successfully");
 });
-router.post("/latest", async (req, res) => {
+
+
+router.post("/latest", auth,isAdmin,async (req, res) => {
   const dataExists = await redisquery.redisexists("posts");
-  console.log(dataExists);
+  //console.log(dataExists);
   if (!dataExists) {
     return res.status(400).send("No posts");
   }
   const dataGet = await redisquery.redisget("posts"); 
-  console.log(dataGet, "dataGet");
-  return res.status(200).send(crypto.encrypt({ dataGet }));
+  //console.log(dataGet, "dataGet");
+  return res.status(200).send(crypto.decryptobj({ dataGet }));
 });
-router.post("/allposts", auth,admin,async (req, res) => {
+router.post("/allposts",async (req, res) => {
   const dataExists = await redisquery.redisexists("allposts");
-  console.log(dataExists);
+  //console.log(dataExists);
   if (!dataExists) {
     return res.status(400).send("No posts");
   }
   const dataGet = await redisquery.redisget("allposts"); 
-  console.log(dataGet, "dataGet");
-  return res.status(200).send(crypto.encrypt({ dataGet }));
+  //console.log(dataGet, "dataGet");
+  return res.status(200).send(crypto.encryptobj({dataGet}));
 });
+
 router.post("/search", async (req, res) => {
 const decrypted = crypto.decryptobj(req.body.enc);
  const search = decrypted.search;
@@ -56,9 +61,9 @@ const decrypted = crypto.decryptobj(req.body.enc);
         { categories: { $regex: new RegExp(search.split('').join('.*'), 'i') } },
         { description: { $regex: new RegExp(search.split('').join('.*'), 'i') } } ]};
  const posts = await Addpost.find(query);
- return res.status(200).json(crypto.encryptobj(posts));
+ return res.status(200).json(crypto.encryptobj({posts}));
   });
-router.post("/lazyloading", async (req, res) => {
+router.post("/lazyloading", async(req, res) => {
  const decrypted = crypto.decryptobj(req.body.enc);
  const limit = 10;
   let skip = decrypted.skip;
@@ -72,17 +77,28 @@ router.post("/lazyloading", async (req, res) => {
   const posts = await Addpost.find().skip(skip).limit(limit);
   return res.status(200).send(crypto.encryptobj({ success: posts }));
 });
-router.post("/deletepost",auth,admin,async (req, res) => {
-  const { postId } = req.body;
-  try {
-    const deletedPost = await Queries.findOneAndDelete({ _id: postId }, "Addpost");
-    if (!deletedPost) {
-      return res.status(404).send("Post not found");
-    }
-    return res.status(200).send("post deleted successfully");
-  } catch (error) {
-    console.error(error);
-    return res.status(500).send("Internal server error");
+
+router.post("/deletepost", auth,isAdmin,async (req, res) => {
+ let title=req.body.title;
+  const dataExists = await redisquery.redisexists("onepost",title);
+  console.log(dataExists);
+  if (!dataExists) {
+    return res.status(400).send("No posts");
   }
+  const deletepost = await redisquery.redishdelete("onepost",title); 
+  console.log(deletepost, "deletepost");
+  return res.status(200).send("post deleted successfully");
 });
+router.post("/alldelete", auth,isAdmin,async (req, res) => {
+  const dataExists = await redisquery.redisexists("allposts");
+  console.log(dataExists);
+  if (!dataExists) {
+    return res.status(400).send("No posts"); 
+  }
+  const alldelete = await redisquery.redisdelete("allposts"); 
+  console.log("deleteall",alldelete);
+  return res.status(200).send(({alldelete}));
+});
+
+
 module.exports = router;

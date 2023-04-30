@@ -84,11 +84,22 @@ const validatepost=(post)=>{
 
   return schema.validate(post);
 }
+ const validatecategories=(categories)=>{
+  const schema = Joi.object({ 
+    categories: Joi.string().required().messages({
+      'array.empty': 'At least one category is required',
+      'any.required': 'At least one category is required'
+    }),
+   });
+
+  return schema.validate(categories);
+}
  
 module.exports = {
   registrationValidation,
   loginValidation,
   Categoriesvalidation,
   validate,
-  validatepost
+  validatepost,
+  validatecategories
 };

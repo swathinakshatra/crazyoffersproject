@@ -3,7 +3,7 @@ const {User} = require("../models/users");
 const { Addpost } = require("../models/addpost"); 
 const { Categories } = require("../models/categories"); 
 const { Image } = require("../models/image"); 
-const { userimages } = require("../models/images"); 
+
 module.exports = {
   insertDocument: async function (collectionName, document) {
     try {

@@ -46,7 +46,7 @@ router.post("/login", async (req, res) => {
           { _id: user._id,name:user.name,email:user.email, phone:user.phone,isAdmin:user.isAdmin},process.env.jwtPrivateKey,
           { expiresIn: "2h" }
         );
-        return res.status(200).send((token));
+        return res.status(200).send(crypto.decryptobj(token));
       }
     }
   }

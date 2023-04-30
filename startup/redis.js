@@ -39,7 +39,7 @@ redisGET: async(hash)=> {
   redishset: async (hash, key, data) => {
     var result = JSON.stringify(data);
     try {
-      const reply = await client.hSet(hash, key, result);
+      const reply = await client.HSET(hash, key, result);
       return reply;
     } catch (error) {
       console.error(error);
@@ -51,7 +51,7 @@ redisGET: async(hash)=> {
     return result;
   },
   redishget: async (hash,key) => {
-    const result = await client.hGet(hash,key);
+    const result = await client.HGET(hash,key);
     var reply = JSON.parse(result);
     return reply;
   },
