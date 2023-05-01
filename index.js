@@ -1,0 +1,10 @@
+require('dotenv').config();
+const express = require('express');
+const app = express();
+require('./startup/routes')(app);
+require('./startup/db')();
+require('./startup/validations');
+require('./startup/redis');
+require('./startup/cors')(app);
+const port = process.env.PORT||3400;
+app.listen(port, () => console.log(`Listening on port ${port}...`));
