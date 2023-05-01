@@ -25,9 +25,7 @@ const adddpostSchema = new mongoose.Schema({
     min: 0,
     max: 10000000
   },
-  
-  
- images: 
+images: 
     {
       type: String,
       required: true,
