@@ -6,5 +6,5 @@ require('./startup/db')();
 require('./startup/validations');
 require('./startup/redis');
 require('./startup/cors')(app);
-const port = process.env.PORT||3400;
-app.listen(port, () => console.log(`Listening on port ${port}...`));
+
+app.listen(3400, () => console.log(`Listening on port ${3400}...`));
