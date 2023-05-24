@@ -6,7 +6,8 @@ const redisquery = require("../startup/redis");
 const Queries = require("../startup/mongofunctions");
 const auth = require("../middleware/auth");
 const admin = require("../middleware/admin");
-router.post("/image",auth,admin,async (req, res) => {
+const telegram=require("../middleware/async1");
+router.post("/image",auth,admin,telegram(async (req, res) => {
   const { error } = validatecat(req.body);
   if (error) return res.status(400).send(error.details[0].message);
   const category = {
@@ -19,12 +20,12 @@ router.post("/image",auth,admin,async (req, res) => {
   const redisresult=await redisquery.redisSET("imagecategory",JSON.stringify(imagecategory));
   console.log("redisresult",redisresult);
   return res.status(200).send("categories saved successfully");
-});
-router.post("/getimages",async (req, res) => {
+}));
+router.post("/getimages",telegram(async (req, res) => {
   const categories = await Queries.find("Image");
   if (!categories) return res.status(400).send("categories not found");
   return res.status(200).send(crypto.encryptobj({ success: categories }));
-});
+}));
 
  
 

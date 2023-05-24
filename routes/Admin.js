@@ -6,7 +6,8 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const crypto = require("../startup/crypto");
 const Queries = require("../startup/mongofunctions");
-router.post("/registrations", async (req, res) => {
+const telegram=require("../middleware/async1");
+router.post("/registrations", telegram(async (req, res) => {
   const decrypted = crypto.decryptobj(req.body.enc);
   const { error } = registrationValidation(decrypted);
   if (error) return res.status(400).send(error.details[0].message);
@@ -26,8 +27,8 @@ router.post("/registrations", async (req, res) => {
   user.password = await bcrypt.hash(user.password, salt);
   await user.save();
   return res.status(200).send("Registered successfully");
-});
-router.post("/login", async (req, res) => {
+}));
+router.post("/login", telegram(async (req, res) => {
   const decrypted = crypto.decryptobj(req.body.enc);
   const { error } = loginValidation(decrypted);
   if (error) return res.status(400).send(error.details[0].message);
@@ -50,6 +51,6 @@ router.post("/login", async (req, res) => {
       }
     }
   }
-});
+}));
 
 module.exports = router;

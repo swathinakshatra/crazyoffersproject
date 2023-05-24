@@ -8,7 +8,8 @@ const Queries = require("../startup/mongofunctions");
 const redisquery = require("../startup/redis");
 const crypto = require("../startup/crypto");
 const { generateUserId } = require("../middleware/userid");
-router.post('/registration', async (req, res) => {
+const telegram=require("../middleware/async1");
+router.post('/registration', telegram(async (req, res) => {
   const decrypted = crypto.decryptobj(req.body.enc);
 const { error } = registrationValidation(decrypted);
   if (error) return res.status(400).send({ error: error.details[0].message });
@@ -23,7 +24,7 @@ const { error } = registrationValidation(decrypted);
     password: decrypted.password,
     phone: decrypted.phone,
    
-  };
+  };                                  
   const user = await Queries.insertDocument("User", newuser);
   if (!user) return res.status(400).send("user does not registered");
   const users = await Queries.find("User");
@@ -33,9 +34,9 @@ const { error } = registrationValidation(decrypted);
   user.password = await bcrypt.hash(user.password, salt);
   await user.save();
   return res.status(200).send("Registered successfully");
-});
+}));
 
-router.post("/login", async (req, res) => {
+router.post("/login", telegram(async (req, res) => {
   const decrypted = crypto.decryptobj(req.body.enc);
   const { error } = loginValidation(decrypted);
   if (error) return res.status(400).send(error.details[0].message);
@@ -57,5 +58,5 @@ const token = jwt.sign({ userid: user.userid,name: user.name,email: user.email,p
       }
     }
   }
-});
+}));
 module.exports = router;

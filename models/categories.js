@@ -21,13 +21,8 @@ function validatecat(categories) {
       'string.max': 'Category must not exceed 50 characters',
       'string.pattern.base': 'Category must contain only letters, numbers, and spaces'
     })
-  
-
-   
-
-  });
-
-  return schema.validate(categories);
+});
+return schema.validate(categories);
 }
 
 exports.Categories = Categories;
