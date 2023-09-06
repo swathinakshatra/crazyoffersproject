@@ -1,3 +1,4 @@
 /node_modules
 rough.js
 /log
+.env
